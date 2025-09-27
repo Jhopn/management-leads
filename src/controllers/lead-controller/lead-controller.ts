@@ -10,7 +10,7 @@ export const createLead = async (request: FastifyRequest<{ Body: z.infer<typeof 
     try {
         const data = createLeadSchema.parse(request.body);
 
-        checkDomain(data.email);
+        await checkDomain(data.email);
 
         const lead = await prisma.lead.create({
             data,

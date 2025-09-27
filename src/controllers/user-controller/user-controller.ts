@@ -17,7 +17,7 @@ export const createUser = async (request: FastifyRequest<{ Body: z.infer<typeof 
             return reply.code(409).send({ error: "User with this email already exists." });
         }
 
-        checkDomain(email);
+        await checkDomain(email);
 
         const passwordHash = await bcrypt.hash(password, 10);
 
