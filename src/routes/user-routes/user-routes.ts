@@ -8,6 +8,7 @@ import {
 import { authAccess } from '../../middlewares/auth-middleware';
 import { createUserSchemaSwagger, updateUserSchema } from '../../controllers/user-controller/dto/user-dto';
 import { uuidParamSchema } from '../../common/dto/param-dto';
+import { z } from 'zod';
 
 const UserRoutes: FastifyPluginAsync = async (fastify) => {
 
@@ -26,7 +27,11 @@ const UserRoutes: FastifyPluginAsync = async (fastify) => {
         schema: {
             description: 'Get a list of all users',
             tags: ['Users'],
-            security: [{ bearerAuth: [] }]
+            security: [{ bearerAuth: [] }],
+            querystring: z.object({
+                page: z.coerce.number().default(1).describe('Page number'),
+                pageSize: z.coerce.number().default(10).describe('Users per page')
+            })
         }
     }, getUsers);
 

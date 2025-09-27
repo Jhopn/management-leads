@@ -6,10 +6,11 @@ import * as bcrypt from 'bcryptjs';
 import { exclude } from "../../util/function-exclude";
 import { uuidParamSchema } from "../../common/dto/param-dto";
 import { checkDomain } from "../../util/function-check-domain";
+import { paginationSchema } from "../../common/dto/pagination-dto";
 
 export const createUser = async (request: FastifyRequest<{ Body: z.infer<typeof createUserSchema> }>, reply: FastifyReply) => {
     try {
-        const { email, password, accessRole } = request.body;
+        const { name, email, password, accessRole } = request.body;
 
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
@@ -22,6 +23,7 @@ export const createUser = async (request: FastifyRequest<{ Body: z.infer<typeof 
 
         const user = await prisma.user.create({
             data: {
+                name,
                 email,
                 password: passwordHash,
                 userAccesses: {
@@ -46,9 +48,14 @@ export const createUser = async (request: FastifyRequest<{ Body: z.infer<typeof 
     }
 };
 
-export const getUsers = async (request: FastifyRequest, reply: FastifyReply) => {
+export const getUsers = async (request: FastifyRequest<{ Querystring: z.infer<typeof paginationSchema> }>, reply: FastifyReply) => {
+    const { page = 1, pageSize = 10 } = request.query;
+    const offset = (page - 1) * pageSize;
+
     try {
         const users = await prisma.user.findMany({
+            skip: offset,
+            take: pageSize,
             select: {
                 id: true,
                 email: true,
@@ -62,7 +69,15 @@ export const getUsers = async (request: FastifyRequest, reply: FastifyReply) => 
                 }
             }
         });
-        return reply.code(200).send(users);
+
+        const totalUsers = await prisma.user.count();
+
+        const responseDataUsers = {
+            users,
+            totalPages: Math.ceil(totalUsers / pageSize)
+        }
+
+        return reply.code(200).send(responseDataUsers);
     } catch (error) {
         console.error("Error fetching users:", error);
         return reply.code(500).send({ error: "Error fetching users." });
