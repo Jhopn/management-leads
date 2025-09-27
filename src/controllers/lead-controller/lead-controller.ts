@@ -1,0 +1,104 @@
+import { FastifyRequest, FastifyReply } from "fastify";
+import { prisma } from "../../connection/prisma";
+import { z } from "zod";
+import { createLeadSchema, updateLeadSchema } from "./dto/lead-dto";
+import { uuidParamSchema } from "../../common/dto/param-dto";
+import { paginationSchema } from "../../common/dto/pagination-dto";
+import { checkDomain } from "../../util/function-check-domain";
+
+export const createLead = async (request: FastifyRequest<{ Body: z.infer<typeof createLeadSchema> }>, reply: FastifyReply) => {
+    try {
+        const data = createLeadSchema.parse(request.body);
+
+        checkDomain(data.email);
+
+        const lead = await prisma.lead.create({
+            data,
+        });
+
+        return reply.code(201).send(lead);
+    } catch (error) {
+        console.error("Error creating lead:", error);
+        return reply.code(500).send({ error: "Internal server error while creating lead." });
+    }
+};
+
+export const getLeads = async (request: FastifyRequest<{ Querystring: z.infer<typeof paginationSchema> }>, reply: FastifyReply) => {
+    try {
+        const { page = 1, pageSize = 10 } = request.query;
+        const skip = (page - 1) * pageSize;
+
+        const [leads, totalLeads] = await prisma.$transaction([
+            prisma.lead.findMany({
+                skip,
+                take: pageSize,
+                orderBy: {
+                    createdAt: 'desc' 
+                }
+            }),
+            prisma.lead.count()
+        ]);
+
+        return reply.code(200).send({
+            leads,
+            totalPages: Math.ceil(totalLeads / pageSize)
+        });
+    } catch (error) {
+        console.error("Error fetching leads:", error);
+        return reply.code(500).send({ error: "Error fetching leads." });
+    }
+};
+
+export const getLeadById = async (request: FastifyRequest<{ Params: z.infer<typeof uuidParamSchema> }>, reply: FastifyReply) => {
+    try {
+        const { id } = request.params;
+        const lead = await prisma.lead.findUnique({
+            where: { id },
+        });
+
+        if (!lead) {
+            return reply.code(404).send({ error: 'Lead not found.' });
+        }
+
+        return reply.code(200).send(lead);
+    } catch (error) {
+        console.error("Error fetching lead:", error);
+        return reply.code(500).send({ error: "Error fetching lead." });
+    }
+};
+
+export const updateLead = async (request: FastifyRequest<{ Body: z.infer<typeof updateLeadSchema>, Params: z.infer<typeof uuidParamSchema> }>, reply: FastifyReply) => {
+    try {
+        const { id } = request.params;
+        const data = updateLeadSchema.parse(request.body);
+
+        const updatedLead = await prisma.lead.update({
+            where: { id },
+            data: data,
+        });
+
+        return reply.code(200).send(updatedLead);
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            return reply.code(404).send({ error: 'Lead not found.' });
+        }
+        console.error("Error updating lead:", error);
+        return reply.code(500).send({ error: 'Error updating lead.' });
+    }
+};
+
+export const deleteLead = async (request: FastifyRequest<{ Params: z.infer<typeof uuidParamSchema> }>, reply: FastifyReply) => {
+    try {
+        const { id } = request.params;
+
+        await prisma.lead.delete({ where: { id } });
+
+        return reply.code(204).send();
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            return reply.code(404).send({ error: 'Lead not found.' });
+        }
+        console.error("Error deleting lead:", error);
+        return reply.code(500).send({ error: 'Error deleting lead.' });
+    }
+};

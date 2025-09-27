@@ -5,6 +5,7 @@ import fastifySwaggerUi from '@fastify/swagger-ui';
 import { UserRoutes } from './routes/user-routes/user-routes';
 import { SessionRoutes } from './routes/auth-routes/auth-routes';
 import fastifyCors from '@fastify/cors';
+import { LeadRoutes } from './routes/lead-routes/lead-routes';
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -39,6 +40,7 @@ app.register(fastifyCors, {
 
 app.register(UserRoutes);
 app.register(SessionRoutes);
+app.register(LeadRoutes);
 
 app.listen({ port: 3000}, (err, address) => {
   console.log('Server ativo!', err, address);
