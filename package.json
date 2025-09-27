@@ -10,12 +10,15 @@
   "main": "./lib/index.js",
   "scripts": {
     "start": "tsx watch ./src/index.ts",
+    "db:seed:access": "tsx ./src/seeders/create-access.ts",
+    "db:seed:admin": "tsx ./src/seeders/create-user.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "prepublish": "npm run build"
   },
   "dependencies": {
+    "@fastify/cors": "^11.1.0",
     "@fastify/swagger": "^9.5.2",
     "@fastify/swagger-ui": "^5.2.3",
     "@prisma/client": "^6.16.2",
