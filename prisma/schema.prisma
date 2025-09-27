@@ -13,31 +13,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  USER
+model UserAccess {
+  id         String   @id @default(uuid()) 
+  userId     String?  
+  accessId   String?  
+
+  user       User?    @relation("UserAccesses", fields: [userId], references: [id], onDelete: Cascade)
+  access     Access?  @relation("AccessUser", fields: [accessId], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Access {
+  id           String        @id @default(uuid()) 
+  name         String        @unique
+  userAccesses UserAccess[]  @relation("AccessUser")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model User {
-  id         String   @id @default(uuid()) @db.Uuid
-  name       String?
-  email      String   @unique
-  password   String
-  role       UserRole @default(ADMIN)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String      @id @default(uuid()) 
+  name         String?
+  email        String      @unique
+  password     String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
-  leads      Lead[]   @relation("UserLeads")
+  userLeads    Lead[]      @relation("UserLeads")
+  userAccesses UserAccess[] @relation("UserAccesses")
 }
 
 model Lead {
-  id             String   @id @default(uuid()) @db.Uuid
+  id             String   @id @default(uuid()) 
   nome           String
   email          String
   telefone       String
   cargo          String
   dataNascimento DateTime
-  mensagem       String   @db.Text
+  mensagem       String
 
   utm_source     String? 
   utm_medium     String?
@@ -50,7 +65,7 @@ model Lead {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  createdById    String?  @db.Uuid
+  createdById    String?  
   createdBy      User?    @relation("UserLeads", fields: [createdById], references: [id])
 
   @@index([email])
