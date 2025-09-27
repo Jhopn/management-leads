@@ -14,59 +14,59 @@ datasource db {
 }
 
 model UserAccess {
-  id         String   @id @default(uuid()) 
-  userId     String?  
-  accessId   String?  
+  id       String  @id @default(uuid())
+  userId   String?
+  accessId String?
 
-  user       User?    @relation("UserAccesses", fields: [userId], references: [id], onDelete: Cascade)
-  access     Access?  @relation("AccessUser", fields: [accessId], references: [id])
+  user   User?   @relation("UserAccesses", fields: [userId], references: [id], onDelete: Cascade)
+  access Access? @relation("AccessUser", fields: [accessId], references: [id])
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Access {
-  id           String        @id @default(uuid()) 
-  name         String        @unique
-  userAccesses UserAccess[]  @relation("AccessUser")
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime @updatedAt
+  id           String       @id @default(uuid())
+  name         String       @unique
+  userAccesses UserAccess[] @relation("AccessUser")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 }
 
 model User {
-  id           String      @id @default(uuid()) 
-  name         String?
-  email        String      @unique
-  password     String
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  userLeads    Lead[]      @relation("UserLeads")
+  userLeads    Lead[]       @relation("UserLeads")
   userAccesses UserAccess[] @relation("UserAccesses")
 }
 
 model Lead {
-  id             String   @id @default(uuid()) 
-  nome           String
-  email          String
-  telefone       String
-  cargo          String
-  dataNascimento DateTime
-  mensagem       String
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  telephone String
+  position  String
+  dateBirth DateTime
+  message   String
 
-  utm_source     String? 
-  utm_medium     String?
-  utm_campaign   String?
-  utm_term       String?
-  utm_content    String?
-  gclid          String?
-  fbclid         String?
+  utm_source   String?
+  utm_medium   String?
+  utm_campaign String?
+  utm_term     String?
+  utm_content  String?
+  gclid        String?
+  fbclid       String?
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  createdById    String?  
-  createdBy      User?    @relation("UserLeads", fields: [createdById], references: [id])
+  createdById String?
+  createdBy   User?   @relation("UserLeads", fields: [createdById], references: [id])
 
   @@index([email])
   @@index([createdAt])
