@@ -25,7 +25,7 @@ export function authAccess(permissions?: string[]) {
         process.env.JWT_SECRET as string,
       ) as DecodedToken;
 
-      request.clientData = { id: decodedToken.id, email: decodedToken.email, roles: decodedToken.roles};
+      request.userData = { id: decodedToken.id, email: decodedToken.email, roles: decodedToken.roles};
 
       if (permissions && permissions.length > 0) {
         const user = await prisma.user.findUnique({
