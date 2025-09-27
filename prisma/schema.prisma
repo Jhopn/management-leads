@@ -41,7 +41,6 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userLeads    Lead[]       @relation("UserLeads")
   userAccesses UserAccess[] @relation("UserAccesses")
 }
 
