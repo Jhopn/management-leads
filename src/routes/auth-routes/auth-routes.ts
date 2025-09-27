@@ -7,6 +7,7 @@ const SessionRoutes: FastifyPluginAsync = async (fastify) => {
     '/login',
     {
       schema: {
+        summary: 'User login',
         description: "Evaluates the user's credentials and returns the token",
         tags: ['Auth'],
         body: sessionSchema,

@@ -15,6 +15,7 @@ const LeadRoutes: FastifyPluginAsync = async (fastify) => {
 
     fastify.post('/leads', {
         schema: {
+            summary: 'Create a new lead',
             description: 'Create a new lead',
             tags: ['Leads'],
             body: createLeadSchema,
@@ -24,6 +25,7 @@ const LeadRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.get('/leads', {
         preHandler: authAccess(["ADMIN"]),
         schema: {
+            summary: 'List all leads with pagination',
             description: 'Get a list of all leads with pagination',
             tags: ['Leads'],
             querystring: paginationSchema,
@@ -34,6 +36,7 @@ const LeadRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.get('/leads/:id', {
         preHandler: authAccess(["ADMIN"]),
         schema: {
+            summary: 'Get a single lead by ID',
             description: 'Get a single lead by ID',
             tags: ['Leads'],
             params: uuidParamSchema,
@@ -44,6 +47,7 @@ const LeadRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.patch('/leads/:id', {
         preHandler: authAccess(["ADMIN"]),
         schema: {
+            summary: 'Update a lead by ID (partial update)',
             description: 'Update a lead by ID (partial update)',
             tags: ['Leads'],
             params: uuidParamSchema,
@@ -55,6 +59,7 @@ const LeadRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.delete('/leads/:id', {
         preHandler: authAccess(["ADMIN"]),
         schema: {
+            summary: 'Delete a lead by ID',
             description: 'Delete a lead by ID',
             tags: ['Leads'],
             params: uuidParamSchema,

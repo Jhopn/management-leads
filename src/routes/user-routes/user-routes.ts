@@ -15,7 +15,8 @@ const UserRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.post('/users', {
         preHandler: authAccess(["ADMIN"]),
         schema: {
-            description: 'Create a new user (USER or ADMIN)',
+            summary: 'Create a new user ',
+            description: 'Create a new user (READER or ADMIN)',
             tags: ['Users'],
             body: createUserSchemaSwagger,
             security: [{ bearerAuth: [] }]
@@ -23,8 +24,9 @@ const UserRoutes: FastifyPluginAsync = async (fastify) => {
     }, createUser);
 
     fastify.get('/users', {
-        preHandler: authAccess(["ADMIN"]),
+        preHandler: authAccess(["ADMIN", "READER"]),
         schema: {
+            summary: 'List all users', 
             description: 'Get a list of all users',
             tags: ['Users'],
             security: [{ bearerAuth: [] }],
@@ -38,6 +40,7 @@ const UserRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.patch('/users/:id', {
         preHandler: authAccess(["ADMIN"]),
         schema: {
+            summary: 'Update users by id',
             description: 'Update a user by ID',
             tags: ['Users'],
             params: uuidParamSchema,
@@ -47,8 +50,9 @@ const UserRoutes: FastifyPluginAsync = async (fastify) => {
     }, updateUser);
 
     fastify.delete('/users/:id', {
-        preHandler: authAccess(["ADMIN", "USER"]),
+        preHandler: authAccess(["ADMIN"]),
         schema: {
+            summary: 'Delete users by id',
             description: 'Delete a user by ID',
             tags: ['Users'],
             params: uuidParamSchema,

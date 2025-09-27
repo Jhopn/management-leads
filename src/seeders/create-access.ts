@@ -2,7 +2,7 @@ import { prisma } from '../connection/prisma';
 
 async function createAccessRoles() {
   try {
-    const roles = ["ADMIN", "USER"];
+    const roles = ["ADMIN", "READER"];
 
     for (const roleName of roles) {
       const existingRole = await prisma.access.findUnique({
