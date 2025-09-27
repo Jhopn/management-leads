@@ -1,50 +1,51 @@
 import { prisma } from '../connection/prisma';
 import * as bcrypt from 'bcryptjs';
 
-async function createDefaultAdvisor() {
-    const ADVISOR_EMAIL = process.env.ADVISOR_EMAIL || "advisor@example.com";
-    const ADVISOR_PASSWORD = process.env.ADVISOR_PASSWORD || "advisorpassword";
+async function createDefaultAdmin() {
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@example.com";
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "secret";
 
     try {
-        const advisorRole = await prisma.access.findUnique({
-            where: { name: 'advisor' },
+        const AdminRole = await prisma.access.findUnique({
+            where: { name: 'ADMIN' },
         });
 
-        if (!advisorRole) {
-            console.error("Erro: A role 'advisor' não foi encontrada. Execute o seeder de roles primeiro.");
+        if (!AdminRole) {
+            console.error("Erro: A role 'Admin' não foi encontrada. Execute o seeder de roles primeiro.");
             return;
         }
 
-        const existingAdvisor = await prisma.user.findUnique({
-            where: { email: ADVISOR_EMAIL },
+        const existingAdmin = await prisma.user.findUnique({
+            where: { email: ADMIN_EMAIL },
         });
 
-        if (existingAdvisor) {
-            console.warn(`Usuário advisor com o e-mail '${ADVISOR_EMAIL}' já existe.`);
+        if (existingAdmin) {
+            console.warn(`Usuário Admin com o e-mail '${ADMIN_EMAIL}' já existe.`);
             return;
         }
 
-        const passwordHash = await bcrypt.hash(ADVISOR_PASSWORD, 10);
+        const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
 
         await prisma.user.create({
             data: {
-                email: ADVISOR_EMAIL,
+                name: 'Admin User',
+                email: ADMIN_EMAIL,
                 password: passwordHash,
                 userAccesses: {
                     create: {
-                        accessId: advisorRole.id, 
+                        accessId: AdminRole.id, 
                     },
                 },
             },
         });
 
-        console.log(`Usuário advisor '${ADVISOR_EMAIL}' criado com sucesso!`);
+        console.log(`Usuário Admin '${ADMIN_EMAIL}' criado com sucesso!`);
 
     } catch (error) {
-        console.error('Erro ao criar o usuário advisor padrão:', error);
+        console.error('Erro ao criar o usuário Admin padrão:', error);
     } finally {
         await prisma.$disconnect();
     }
 }
 
-void createDefaultAdvisor();
+void createDefaultAdmin();
