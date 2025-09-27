@@ -4,18 +4,16 @@
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"lib": [
-			"es2015"
+			"ESNext",
+			"DOM"
 		],
-
 		"rootDir": "src",
 		"outDir": "lib",
-
 		"strict": true,
 		"alwaysStrict": true,
 		"strictFunctionTypes": true,
 		"strictNullChecks": true,
 		"strictPropertyInitialization": true,
-
 		"forceConsistentCasingInFileNames": true,
 		"noImplicitAny": true,
 		"noImplicitReturns": true,
@@ -23,12 +21,10 @@
 		"noFallthroughCasesInSwitch": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"downlevelIteration": true,
 		"declaration": true,
-
 		"pretty": true
 	},
 	"include": [

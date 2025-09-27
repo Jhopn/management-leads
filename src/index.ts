@@ -1,4 +1,7 @@
+import fastify from 'fastify';
 
-export function sayHelloWorld(world: string) {
-  return `Hello ${world}`;
-}
+const app = fastify();
+
+app.listen({ port: 3000}, (err, address) => {
+  console.log('Server ativo!', address);
+})
