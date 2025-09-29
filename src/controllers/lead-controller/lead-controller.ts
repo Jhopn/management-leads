@@ -107,7 +107,7 @@ export const deleteLead = async (request: FastifyRequest<{ Params: z.infer<typeo
 };
 
 
-export const exportLeadsToCsv = async (request: FastifyRequest, reply: FastifyReply) => {
+export const exportLeadsToCsv = async (reply: FastifyReply) => {
   const passThrough = new PassThrough();
 
   reply.header("Content-Type", "text/csv; charset=utf-8");
