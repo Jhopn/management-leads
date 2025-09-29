@@ -4,7 +4,8 @@ import {
     getLeads,
     getLeadById,
     updateLead,
-    deleteLead
+    deleteLead,
+    exportLeadsToCsv
 } from '../../controllers/lead-controller/lead-controller';
 import { authAccess } from '../../middlewares/auth-middleware';
 import { createLeadSchema, updateLeadSchema } from '../../controllers/lead-controller/dto/lead-dto';
@@ -43,6 +44,16 @@ const LeadRoutes: FastifyPluginAsync = async (fastify) => {
             security: [{ bearerAuth: [] }]
         }
     }, getLeadById);
+
+    fastify.get('/leads/export-csv', {
+        preHandler: authAccess(["ADMIN"]),
+        schema: {
+            summary: 'Export all leads to a CSV file',
+            description: 'Retrieves all leads from the database and returns them as a downloadable CSV file. This route is restricted to ADMIN users.',
+            tags: ['Leads'],
+            security: [{ bearerAuth: [] }],
+        }
+    }, exportLeadsToCsv);
 
     fastify.patch('/leads/:id', {
         preHandler: authAccess(["ADMIN"]),

@@ -42,6 +42,6 @@ app.register(UserRoutes);
 app.register(SessionRoutes);
 app.register(LeadRoutes);
 
-app.listen({ port: 3000, host: '0.0.0.0'}, (err, address) => {
+app.listen({ port: 4000, host: '0.0.0.0'}, (err, address) => {
   console.log('Server ativo!', err, address);
 })

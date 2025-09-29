@@ -5,6 +5,9 @@ import { createLeadSchema, updateLeadSchema } from "./dto/lead-dto";
 import { uuidParamSchema } from "../../common/dto/param-dto";
 import { paginationSchema } from "../../common/dto/pagination-dto";
 import { checkDomain } from "../../util/function-check-domain";
+import { stringify } from 'csv-stringify'; 
+import { Lead } from "@prisma/client";
+import { PassThrough } from "stream";
 
 export const createLead = async (request: FastifyRequest<{ Body: z.infer<typeof createLeadSchema> }>, reply: FastifyReply) => {
     try {
@@ -33,7 +36,7 @@ export const getLeads = async (request: FastifyRequest<{ Querystring: z.infer<ty
                 skip,
                 take: pageSize,
                 orderBy: {
-                    createdAt: 'desc' 
+                    createdAt: 'desc'
                 }
             }),
             prisma.lead.count()
@@ -101,4 +104,84 @@ export const deleteLead = async (request: FastifyRequest<{ Params: z.infer<typeo
         console.error("Error deleting lead:", error);
         return reply.code(500).send({ error: 'Error deleting lead.' });
     }
+};
+
+
+export const exportLeadsToCsv = async (request: FastifyRequest, reply: FastifyReply) => {
+  const passThrough = new PassThrough();
+
+  reply.header("Content-Type", "text/csv; charset=utf-8");
+  reply.header("Content-Disposition", 'attachment; filename="leads.csv"');
+
+  reply.send(passThrough);
+
+
+  const csvStringifier = stringify({
+    header: true,
+    columns: [
+      "id", "name", "email", "telephone", "position", "message", "utm_source",
+      "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid",
+      "fbclid", "createdAt", "updatedAt"
+    ]
+  });
+
+  passThrough.write("\uFEFF");
+
+  csvStringifier.pipe(passThrough);
+
+  try {
+    const batchSize = 1000;
+    let cursor: string | undefined = undefined;
+
+    while (true) {
+      const leads: Lead[] = await prisma.lead.findMany({
+        take: batchSize,
+        ...(cursor && { skip: 1, cursor: { id: cursor } }),
+        orderBy: { id: "asc" }
+      });
+
+      if (leads.length === 0) break;
+
+      for (const lead of leads) {
+        csvStringifier.write({
+          id: lead.id,
+          name: lead.name ?? "",
+          email: lead.email ?? "",
+          telephone: lead.telephone ?? "",
+          position: lead.position ?? "",
+          message: lead.message ?? "",
+          utm_source: lead.utm_source ?? "",
+          utm_medium: lead.utm_medium ?? "",
+          utm_campaign: lead.utm_campaign ?? "",
+          utm_term: lead.utm_term ?? "",
+          utm_content: lead.utm_content ?? "",
+          gclid: lead.gclid ?? "",
+          fbclid: lead.fbclid ?? "",
+          createdAt: lead.createdAt ? new Date(lead.createdAt).toISOString() : "",
+          updatedAt: lead.updatedAt ? new Date(lead.updatedAt).toISOString() : ""
+        });
+      }
+
+      cursor = String(leads[leads.length - 1].id);
+    }
+
+    csvStringifier.end();
+
+    csvStringifier.on("error", (err) => {
+      console.error("Erro no csvStringifier:", err);
+      passThrough.destroy(err);
+    });
+
+    passThrough.on("error", (err) => {
+      console.error("Erro no passThrough:", err);
+    });
+
+  } catch (error) {
+    console.error("Error streaming leads to CSV:", error);
+    csvStringifier.destroy(error as Error);
+    passThrough.destroy(error as Error);
+    if (!reply.sent) {
+      reply.code(500).send({ error: "Internal server error while exporting leads." });
+    }
+  }
 };
