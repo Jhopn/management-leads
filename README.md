@@ -112,8 +112,15 @@ Após a instalação, configuração do banco de dados e execução dos seeders,
 ```bash
 npm start
 ```
+### ou teste no backend que está no ar!
 
-O servidor estará disponível em `http://localhost:3000` (ou na porta configurada no `.env`). A documentação da API (Swagger UI) estará acessível em `http://localhost:3000/documentation`.
+•
+Link: https://management-leads.onrender.com
+
+•
+Documentação da API (Swagger UI): https://management-leads.onrender.com/docs
+
+O servidor estará disponível em `http://localhost:3000` (ou na porta configurada no `.env`). A documentação da API (Swagger UI) estará acessível em `http://localhost:3000/docs`.
 
 ## Scripts Disponíveis
 
